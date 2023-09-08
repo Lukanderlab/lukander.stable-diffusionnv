@@ -126,10 +126,8 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash && \
 # Expone el puerto necesario para Jupyter Lab
 EXPOSE 8888
 
-# Copia el script de inicio a la ubicación deseada en el contenedor
-COPY ~/start.sh /usr/local/bin/start.sh
-
-# Otorga permisos de ejecución al script
+# Copia el script de inicio para configurar el acceso a JupyterLab
+COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 # Comando para iniciar Jupyter Lab sin abrir el navegador
