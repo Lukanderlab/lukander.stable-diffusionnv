@@ -74,7 +74,6 @@ RUN $PIP_INSTALL \
     jax==0.4.1 \
     transformers==4.21.3 \
     datasets==2.4.0 \
-    jupyterlab==3.4.6 \
     numpy==1.23.4 \
     scipy==1.9.2 \
     pandas==1.5.0 \
@@ -103,7 +102,6 @@ RUN $PIP_INSTALL \
     sentence-transformers==2.2.2 \
     wandb==0.13.4 \
     awscli==1.25.91 \
-    jupyterlab-snippets==0.4.1 \
     tornado==6.1
 
 # Instala JRE y JDK
@@ -116,19 +114,17 @@ RUN git clone --depth 10 https://github.com/Kitware/CMake ~/cmake && \
     cd ~/cmake && \
     ./bootstrap && \
     make -j"$(nproc)" install
+# Instalamos las bibliotecas comunes que necesitas, puedes agregar más según tus necesidades
+RUN pip install numpy pandas matplotlib seaborn scikit-learn jupyterlab
 
-# Instala Node.js y extensiones de Jupyter Notebook
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash && \
-    $APT_INSTALL nodejs && \
-    $PIP_INSTALL jupyter_contrib_nbextensions jupyterlab-git && \
-    jupyter contrib nbextension install --user
+# Creamos tres directorios separados para los entornos de JupyterLab
+RUN mkdir /jupyter1 /jupyter2 /jupyter3
 
-# Expone el puerto necesario para Jupyter Lab
-EXPOSE 8888
+# Configuramos los puertos para cada entorno de JupyterLab
+EXPOSE 8888 8889 8890
 
-# Copia el script de inicio para configurar el acceso a JupyterLab
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
+# Ejecutamos tres instancias de JupyterLab en diferentes puertos y directorios
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--notebook-dir=/jupyter1", "--allow-root", "--ServerApp.token=''"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8889", "--no-browser", "--notebook-dir=/jupyter2", "--allow-root", "--ServerApp.token=''"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8890", "--no-browser", "--notebook-dir=/jupyter3", "--allow-root", "--ServerApp.token=''"]
 
-# Comando para iniciar Jupyter Lab sin abrir el navegador
-CMD ["/usr/local/bin/start.sh"]
